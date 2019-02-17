@@ -79,6 +79,7 @@ A simple On/Off switch is provided by ``` TuyaSwitch ``` . It has 2 methods:
     * off()
 
 And the status will be reported as
+
 ``` python
 {'state': 'on'}
 {'state': 'off'}
@@ -88,11 +89,13 @@ And the status will be reported as
 
 This is the kind of switch that can be used for curtains, garage doors and so on. It is
 provided with ``` TuyaOCSwitch ```.  It has 3 methods:
+
     * open()
     * close()
     ^ idle()
 
 And the state value can be one of:
+
     ^ closing
     * opening
     * idling
@@ -100,6 +103,7 @@ And the state value can be one of:
 ## LED lights
 
 This is a colour LED light. It is provided by  ``` TuyaLight ``` and offers the following methods:
+
     ^ on()
     * off()
     * set_white( brightness, Temperature)
