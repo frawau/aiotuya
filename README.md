@@ -93,7 +93,7 @@ provided with ``` TuyaOCSwitch ```.  It has 3 methods:
 
 * open()
 * close()
-^ idle()
+* idle()
 
 And the state value can be one of:
 

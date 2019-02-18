@@ -167,7 +167,7 @@ class TuyaMessage():
             else:
                 #log.debug("Loading {}".format(mydata[:mydata.decode().rfind('}')+1]))
                 try:
-                    result.append((returncode, json.loads(mydata[:mydata.decode().rfind('}')+1])))
+                    result.append((returncode, json.loads(mydata.decode()[:mydata.decode().rfind('}')+1])))
                 except:
                     result.append((returncode, mydata))
         return result
