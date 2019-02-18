@@ -75,8 +75,9 @@ At this time aiotuya will gandle 3 types of devices
 ## Switch
 
 A simple On/Off switch is provided by ``` TuyaSwitch ``` . It has 2 methods:
-    * on()
-    * off()
+
+* on()
+* off()
 
 And the status will be reported as
 
@@ -90,37 +91,75 @@ And the status will be reported as
 This is the kind of switch that can be used for curtains, garage doors and so on. It is
 provided with ``` TuyaOCSwitch ```.  It has 3 methods:
 
-    * open()
-    * close()
-    ^ idle()
+* open()
+* close()
+^ idle()
 
 And the state value can be one of:
 
-    ^ closing
-    * opening
-    * idling
+* closing
+* opening
+* idling
 
 ## LED lights
 
 This is a colour LED light. It is provided by  ``` TuyaLight ``` and offers the following methods:
 
-    ^ on()
-    * off()
-    * set_white( brightness, Temperature)
-    * set_colour([hue, saturation, value])
-    * set_colour_rgb(pred, green, blue])
-    * transition_white([bright, K], duration)
-    * transition_colour([h, s, v], duration)
-    * fadein_white(bright, K, duration)
-    * fadeout_white(duration)
-    * fadein_colour([h, s, v], duration)
-    * fadeout_colour(duration)
+* on()
+* off()
+* set_white( brightness, Temperature)
+* set_colour([hue, saturation, value])
+* set_colour_rgb(pred, green, blue])
+* transition_white([bright, K], duration)
+* transition_colour([h, s, v], duration)
+* fadein_white(bright, K, duration)
+* fadeout_white(duration)
+* fadein_colour([h, s, v], duration)
+* fadeout_colour(duration)
 
 ## Other Devices
 
 Other devices can be added, but I do not have the information needed to add them.
 
+# How to use aiotuya
+
+Create a class to manage your devices. The class should have at least 4 methods:
+
+* register(self, device)
+  This will be used to report when a new device has been found.
+* unregister(self,device)
+  This is called when connection to a device is lost.
+* got_data(self, data)
+  This is called when a device receive data. The data should be a dictionary. The 'devId' can be used to iscriminate which device received the data
+* got_error(self, device, data)
+  This is called when an error is received. The device is passed as parameter.
 
 
+Subclass TuyaManager, if you want to persists the device keys, by overloading 2 methods:
 
+* load_keys(self)
+  Loading the known keys in the dictionary self.known_devices. called in __init__
+* persist_keys(self)
+  Save the keys, called when new keys are reported.
 
+After that
+
+``` python
+MyDevs= Devices()
+loop = aio.get_event_loop()
+manager = DevManager(dev_parent=MyDevs)
+scanner = tuya.TuyaScanner(parent=manager)
+scanner.start(loop)
+```
+## How does it work
+
+Tuya devices, when they are not connect, broadcast their presence on the network, TuyaScanner listen
+for those broadcasts and pass them on to TuyaManager.
+
+If the key is known, TuyaManager will create a TuyaDevice generic instance with raw_dps set, using itself as device manager.
+Upon receiving the device status data, Tuyamanager will try to figure out the type of device and create the proper instance
+using the application device manager to control the device.
+
+# Status
+
+0.1.0b1: Initial version. Works for me with a LED lightbulb and a Open/Close switch
