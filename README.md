@@ -54,11 +54,14 @@ Ready you devices for configuration and hit 0 followed by enter.
 
 The wait, hiting the "Enter" key from time to time.
 
+You can also use the '-d' option to get debug messages. These are not suitable for human consumption and are
+known to cause cancer in rats.
+
 ## Provisioning Caveat
 
 For provisioning to work, you must be able to send broadcast packets over WiFi.
 In my case, I was only able to use provisioning on a laptop connected to my
-house WiFi. Trying from a wired computer did not work. Apparently my router (Asus RT-5300)
+house WiFi. Trying from a wired computer did not work. Apparently my router (Asus RT-AC5300)
 did not relay the packets. Your milage may vary.
 
 ## Remembering devices keys
@@ -70,7 +73,7 @@ in your home directory. The default file name is .aiotuya
 
 # The devices
 
-At this time aiotuya will gandle 3 types of devices
+At this time (Feb '19) aiotuya will handle 3 types of devices
 
 ## Switch
 
@@ -107,9 +110,9 @@ This is a colour LED light. It is provided by  ``` TuyaLight ``` and offers the 
 
 * on()
 * off()
-* set_white( brightness, Temperature)
+* set_white( brightness, K)
 * set_colour([hue, saturation, value])
-* set_colour_rgb(pred, green, blue])
+* set_colour_rgb([pred, green, blue])
 * transition_white([bright, K], duration)
 * transition_colour([h, s, v], duration)
 * fadein_white(bright, K, duration)
@@ -120,6 +123,15 @@ This is a colour LED light. It is provided by  ``` TuyaLight ``` and offers the 
 ## Other Devices
 
 Other devices can be added, but I do not have the information needed to add them.
+
+## Devices caveat
+
+aiotuya keeps a connection to the device, and send a heartbeat status request every timout secs
+(10 secs by default). This allows it to receive real time status messages upon changes in the device status
+(e.g. button pressed on a switch). The downside is that Tuya devices seem to only accept one such a
+connection, an so aiotuya has exclusive control of the device via LAN. Fortunately, the devices stop broacasting their presence
+when they have a network connection, so other application should not be able to find them. I have not tried to see if the
+cloud API was still working in that case.
 
 # How to use aiotuya
 
@@ -159,6 +171,11 @@ for those broadcasts and pass them on to TuyaManager.
 If the key is known, TuyaManager will create a TuyaDevice generic instance with raw_dps set, using itself as device manager.
 Upon receiving the device status data, Tuyamanager will try to figure out the type of device and create the proper instance
 using the application device manager to control the device.
+
+TuyaManager figures out the type of device it is dealing with by issuing a status request and inspecting the returned value.
+If an error is returned, ot will try sending a command. The reason for this is that my OC Switch, after powering up, will return
+a "json struct data unvalid" error to any status request until either, a button is pressed or a valid command is issued. The behaviour
+of Tuyamanager is meant to circumvent this problem.
 
 # Status
 
