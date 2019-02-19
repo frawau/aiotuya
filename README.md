@@ -64,6 +64,12 @@ In my case, I was only able to use provisioning on a laptop connected to my
 house WiFi. Trying from a wired computer did not work. Apparently my router (Asus RT-AC5300)
 did not relay the packets. Your milage may vary.
 
+Provisioning is also working on a RPi3 connected through WiFi (Note that I use a USB WiFi dongle to
+connect, not the RPi3 WiFi module)
+
+Provisioning is NOT YET working from a RPi2 (wire connected) with a WiFi dongle.
+
+
 ## Remembering devices keys
 
 During the provisioning process, the device will register with the [Tuya Cloud](https://www.tuya.com).
