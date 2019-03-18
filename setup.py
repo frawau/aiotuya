@@ -34,7 +34,7 @@ setuptools.setup(name='aiotuya',
         'Tuya', 'IoT', 'WiFi', 'Home Automation',  'asyncio',
     ],
     install_requires=[
-        'colorsys', 'csv'
+        'colorsys'
     ],
     entry_points={
         'console_scripts': [
