@@ -25,6 +25,8 @@ import argparse
 import csv
 import logging
 import os
+import random
+import string
 import sys
 import asyncio as aio
 import aiotuya as tuya
@@ -185,12 +187,12 @@ if not os.path.isfile(opts.database):
 
 if opts.ssid:
     if opts.email =="":
-        opts.email = "".join(random.choice(string.ascii_lowercase  for _ in range(6)))
+        opts.email = "".join(random.choice(string.ascii_lowercase)  for _ in range(6))
         opts.email += "@"
-        opts.email += "".join(random.choice(string.ascii_lowercase  for _ in range(8)))
+        opts.email += "".join(random.choice(string.ascii_lowercase)  for _ in range(8))
         opts.email += ".net"
     if opts.password =="":
-        opts.password = "".join(random.choice(string.ascii_lowercase  for _ in range(10)))
+        opts.password = "".join(random.choice(string.ascii_lowercase)  for _ in range(10))
 
 class DevProvision(tuya.TuyaProvision):
     def __init__(self, manager):

@@ -3,9 +3,9 @@
 aiotuya ia a Python library for LAN control of Tuya devices. It can detect, provision
 and control devices that connect to the [Tuya Cloud](https://www.tuya.com).
 
-To make things easy to the user, aiotuya comes with an application id and key
+To make things easy to the user, aiotuya comes with an application key and secret
 that were provided by [Tuya Cloud](https://www.tuya.com). We request that you
-do not use these id and key for any other purpose.
+do not use these key and secret for any other purpose.
 
 # Acknowledgement
 
@@ -52,7 +52,7 @@ Select Device:
 
 Ready you devices for configuration and hit 0 followed by enter.
 
-The wait, hiting the "Enter" key from time to time.
+Then wait, hiting the "Enter" key from time to time.
 
 You can also use the '-d' option to get debug messages. These are not suitable for human consumption and are
 known to cause cancer in rats.
@@ -135,7 +135,7 @@ Other devices can be added, but I do not have the information needed to add them
 aiotuya keeps a connection to the device, and send a heartbeat status request every timout secs
 (10 secs by default). This allows it to receive real time status messages upon changes in the device status
 (e.g. button pressed on a switch). The downside is that Tuya devices seem to only accept one such a
-connection, an so aiotuya has exclusive control of the device via LAN. Fortunately, the devices stop broacasting their presence
+connection, so aiotuya has exclusive control of the device via LAN. Fortunately, the devices stop broacasting their presence
 when they have a network connection, so other application should not be able to find them. I have not tried to see if the
 cloud API was still working in that case.
 
@@ -171,7 +171,7 @@ scanner.start(loop)
 ```
 ## How does it work
 
-Tuya devices, when they are not connect, broadcast their presence on the network, TuyaScanner listen
+Tuya devices, when they are not connected, broadcast their presence on the network, TuyaScanner listen
 for those broadcasts and pass them on to TuyaManager.
 
 If the key is known, TuyaManager will create a TuyaDevice generic instance with raw_dps set, using itself as device manager.
