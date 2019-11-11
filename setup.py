@@ -34,6 +34,8 @@ setuptools.setup(name='aiotuya',
         'Tuya', 'IoT', 'WiFi', 'Home Automation',  'asyncio',
     ],
     install_requires=[
+        'aiohttp',
+        'pycrypo',
     ],
     entry_points={
         'console_scripts': [
