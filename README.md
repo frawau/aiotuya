@@ -20,7 +20,7 @@ Coming soon... we will upload to Pypi
 In the meantime....
 
 ``` shell
-python3 setup.py install
+python3 -m pip install .
 ```
 
 # Usage
