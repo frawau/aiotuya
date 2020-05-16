@@ -44,9 +44,10 @@
 
 import asyncio as aio
 import socket
+import hmac
 import json
 import math
-from hashlib import md5
+from hashlib import md5, sha256
 from time import time
 from collections import OrderedDict
 import aiohttp, random,string
@@ -65,7 +66,7 @@ REGIONURL = {"AZ": 'https://a1.tuyaus.com/api.json',
              'EU': 'https://a1.tuyaeu.com/api.json'}
 SIGNKEY = [ 'a', 'v', 'lat', 'lon', 'lang', 'deviceId', 'imei',
             'imsi', 'appVersion', 'ttid', 'isH5', 'h5Token', 'os',
-            'clientId', 'postData', 'time', 'n4h5', 'sid', 'sp']
+            'clientId', 'postData', 'time', 'n4h5', 'sid', 'sp', 'et']
 
 log = logging.getLogger(__name__)
 
@@ -73,7 +74,7 @@ class TuyaCloud(object):
     """This class describe the minimum needed to interact
     with TuYa cloud so we can link devices
     """
-    def __init__(self, email, passwd, region = "america", tz = "+00:00", apikey = APIKEY, apisecret = APISECRET):
+    def __init__(self, email, passwd, region = "america", tz = "+00:00", apikey = APIKEY, apisecret = APISECRET, apisecret2 = None, certsign = None):
         try:
             self.region = REGIONMATCH[region.lower()]
         except:
@@ -84,7 +85,17 @@ class TuyaCloud(object):
         self.key = apikey
 
         if len(apisecret) != 32:
-            raise Exception("Error: API Key must be 32 char long, it is {}.".format(len(apikey)))
+            raise Exception("Error: API Key must be 32 char long, it is {}.".format(len(apisecret)))
+
+        if apisecret2 != None and len(apisecret2) != 32:
+            raise Exception("Error: Second API Key must be 32 char long, it is {}.".format(len(apisecret2)))
+
+        if certsign != None and len(certsign) != 95:
+            raise Exception("Error: Certificate signature must be 95 characters long, it is {}.".format(len(certsign)))
+
+
+        if (apisecret2 != None and certsign == None) or (apisecret == None and certsign != None):
+            raise Exception("Error: Advanced query signatures require both a second API secret and a certificate signature")
 
         self.secret = apisecret
         self.email = email
@@ -94,9 +105,13 @@ class TuyaCloud(object):
         self.deviceid = ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(44))
         self.token = ''
         self.tokensecret = ''
+        if apisecret2 != None and certsign != None:
+            self.hmacsecret = certsign + '_' + apisecret2 + '_' + apisecret
+        else:
+            self.hmacsecret = None
 
 
-    async def _request(self, command, data):
+    async def _request(self, command, data, version="1.0"):
 
         def shufflehash(data):
             prehash = md5(data.encode()).hexdigest()
@@ -115,7 +130,7 @@ class TuyaCloud(object):
                  "deviceId": data.get("deviceId",self.deviceid),
                  "os": 'Linux',
                  "lang": 'en',
-                 "v": '1.0',
+                 "v": version,
                  "clientId": self.key,
                  "time": round(time()),
                  "postData": json.dumps(data,separators=(',', ':'))}
@@ -123,20 +138,29 @@ class TuyaCloud(object):
         if self.sessionid:
             rawdata["sid"] = self.sessionid
 
+        if self.hmacsecret != None:
+            rawdata["et"] = "0.0.1"
+
         sorteddata = sortOD(rawdata)
         log.debug("Request is {}".format(rawdata))
         tosign = ""
         for key in sorteddata:
             if key not in SIGNKEY or not rawdata[key]:
                 continue
+            if tosign != "":
+                tosign += "||"
             tosign += key + "="
             if key == 'postData':
                 tosign += shufflehash(rawdata[key])
             else:
                 tosign += str(rawdata[key])
-            tosign += "||"
-        tosign += self.secret
-        rawdata["sign"] = md5(tosign.encode()).hexdigest()
+
+        if self.hmacsecret == None:
+            tosign += "||" + self.secret
+            rawdata["sign"] = md5(tosign.encode()).hexdigest()
+        else:
+            rawdata["sign"] = hmac.new(bytearray(self.hmacsecret, "ascii"), bytearray(tosign, "ascii"), sha256).hexdigest()
+
         async with aiohttp.ClientSession() as session:
             async with session.get(REGIONURL[self.region], params=rawdata) as resp:
                 rdata = await resp.text()
@@ -154,8 +178,10 @@ class TuyaCloud(object):
         data = {"countryCode": self.region,
                 "email": self.email,
                 "passwd": md5(self.password.encode()).hexdigest()}
-
-        resu = await self._request( 'tuya.m.user.email.password.login',data)
+        if self.hmacsecret == None:
+            resu = await self._request( 'tuya.m.user.email.password.login',data)
+        else:
+            resu = await self._request( 'tuya.m.user.email.password.login',data, version="2.0")
         self.sessionid = resu["sid"]
         return resu
 
