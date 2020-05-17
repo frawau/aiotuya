@@ -35,7 +35,7 @@ setuptools.setup(name='aiotuya',
     ],
     install_requires=[
         'aiohttp',
-        'pycrypo',
+        'pycrypto',
     ],
     entry_points={
         'console_scripts': [
