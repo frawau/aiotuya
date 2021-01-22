@@ -765,6 +765,7 @@ class TuyaScanner(aio.DatagramProtocol):
         self.message = TuyaMessage()
         self.task = None
         self.parent = parent
+        self.transport = None
 
     def connection_made(self, transport):
         log.debug("Scanner Connected")
