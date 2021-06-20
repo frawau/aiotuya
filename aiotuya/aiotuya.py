@@ -3,7 +3,7 @@
 #
 # This module provides a library to control Tuya devices over the LAN
 # The various devices expose the functions of the devices in a developper-friendly
-# way. Note that in order to be able to set the devices, a key must be lnown. the
+# way. Note that in order to be able to set the devices, a key must be known. the
 # key can be aquired by using the provisioning functions.
 #
 # Copyright (c) 2019 François Wautier
@@ -191,7 +191,7 @@ class TuyaMessage():
 
         prefix = b'\x00\x00\x55\xaa'+ b'\x00'*7 + cmdbyte
         #CRC
-        payload += b'\x00'*4   #Apparently not checked, so we dpn't bother
+        payload += b'\x00'*4   #Apparently not checked, so we don't bother
         #Suffix
         payload += b'\x00\x00\xaa\x55'
         try:
